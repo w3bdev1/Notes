@@ -1,0 +1,69 @@
+= Add, Delete, Rename =
+* `git add <filename>`
+* `git rm <filename>`
+* `git mv <old filename> <new filename>`
+
+= Undo, Redo =
+* Check changes since last commit → `git status`
+* Check commit log → `git log`
+* The first few characters of the commit hash are enough to specify the commit.
+
+*Restore changes in a file since last commit*
+* `git restore <file name>`
+
+*Restore to a earlier commit permanently*
+* `git reset --hard <commit hash>`
+
+*Restore to a earlier commit temporarily*
+* Restore the whole repo → `git checkout <commit hash>`
+* Restore specific file → `git checkout <commit hash> file1 file2`
+* Other ways to checkout to previous commit
+    - Via number → `git checkout master~5` → 5th last saved commit
+    - Via starting of commit message → `git checkout :/"My First Com"`
+* It is a detached HEAD state. Here we can do experimental changes.
+* Now we have 2 options
+    - Save the experimental changes to a new branch → `git switch c <new branch name>`
+    - Switch back to actual position removing experimental changes → `git switch -` or `git checkout <existing branch name>`
+
+*Revert back to previous commit*
+* In this case repo reverts (undoes) a previous commit and set it as new commit. Hence previous commit history is retained, unlike `git reset`
+* First check all the present commits are done (`git commit -a`) and then `git revert <commit hash>`.
+
+= Regain deleted files =
+*Preserving changes of other files*
+* `git checkout <When file was present commit hash> file1 file2`
+
+*Adding patch for diff between deletion commit and its previous commit*
+* `git diff <Deletion commit hash> <Previous of the deletion commit hash> | git apply`
+* Note, all other changes within the 2 commits will also be added.
+
+*Revert back the deletion commit*
+* `git revert <Deletion commit hash>`
+* Note, all other changes happened during the deletion commit will also be reverted.
+
+
+= What has been changed =
+*Change since last commit*
+* Change `git diff`
+
+*Change since some time*
+* Since 4 hours → `git diff "@{4 hours}`
+* Since yesterday → `git diff "@{yesterday}"`
+* Since 2 weeks → `git whatchanged --since="2 weeks ago"`
+* Since an specific commit and 2nd last commit → `git diff <specific commit hash> master~2`
+
+= Git Merge Conflict =
+* Add, Commit and Try to push. If there is conflict push won't happen.
+* Then pull the repo first. Git will try to merge the changes automatically.
+* If there is a conflict, git will tell `CONFLICT: ...`
+* So open those file and manually merge.
+* Then git add and commit.
+* Try to git push again.
+
+= Ignore Files =
+* To ignore for all users: Mention the file in `$GIT_DIR/.gitignore`
+* To ignore for a specific user: Mention the file in `$GIT_DIR/info/exclude`
+* In case the file was already tracked by git, but now you want to ignore → `git update-index --assume-unchanged <file>`
+
+--- 
+Source: http://www-cs-students.stanford.edu/~blynn/gitmagic/ch02.html

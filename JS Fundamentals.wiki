@@ -1,0 +1,118 @@
+= Primitive vs Object =
+*Primitives*
+* The lowest level building blocks in JavaScript are 7 primitives.
+* It includes: 
+    1 undefined, 
+    2 null, 
+    3 string, 
+    4 number, 
+    5 bigint, 
+    6 boolean, and 
+    7 symbol. 
+* All primitives are immutable.
+
+_undefined vs null_
+* undefined is default value of 
+    - variable not assigned any value to it → `var x;`
+    - function that returns nothing → `function y() {}`
+* null similarly represents empty value, but the developer has to explicitly define it.
+
+    
+*Object*
+* Anything that is not a primitive is an Object, or a descendant of it, e.g., functions, arrays, class instances etc.
+* Objects are collections of key/value pairs.
+* N.B.: There are some primitive wrapper objects → `var foo = Boolean(false); var baz = String('Hello')`
+
+= Control Flow =
+* If statement
+* Ternary
+* Switch statement
+* Try-Catch-Finally
+* Comparisons
+* Equality == vs ===
+* Logical NOT (!), AND (&&), OR (||)
+
+= Truthy vs Falsy =
+* When a value is encounted in a Boolean context - such as an if statement - it will be coerced into a boolean. 
+* If the result is true then the value is truthy and vice versa. 
+* If you’re unsure about a value, you can convert it using the logical NOT operator twice → `!!`.
+{{{
+    true; // true
+    !! "hello"; // true
+    !! -1; // true
+    !! []; // true
+    !! {}; // true
+
+    false; // false
+    !! null; // false
+    !! undefined; // false
+    !! 0; // false
+    !! ""; // false
+}}}
+
+= Variables: var, let, const =
+* var and let lets initialize a variable and assign and reassign value to it. → `var x; x = 'something'; x = 'something else'; `
+* In case of const, it needs to be initialized with a value and does not allow to reassign. → `const y = 'something only';`
+
+_Context of variable_
+* Variable outside of any block is a global variable. It is available inside any block.
+* When variable is declared within a block, e.g., function, it is a local variable to that block and not available in global scope.
+* If we assign a value to an undeclared variable, it will automatically be assigned as global variable, even if inside a function.
+
+= Hoisting =
+* Hoisting means that the declarations, i.e. functions and variables, will always be placed in memory at the top of the execution context.
+* Hence
+    - We can a call a function before its declaration → `fun(); function fun() {}`
+    - We can assign a variable at bottom but reference it somewhere before. → `console.log(x); var x;`
+* Note that actual assignment of value to variable happens where it is defined, only the declaration is hoisted.
+
+*Not var, use let*
+_Scope_
+* var leaks into parent scope.
+* let is limited to the scope of its block.
+{{{
+    if (1===1) {
+        var a = 1;
+        let b = 2;
+    }
+    
+    console.log(a)      // 1
+    console.log(b)      // b is not defined
+}}}
+
+_Hoisting_
+{{{
+    console.log(num1);   // undefined
+    var num1 = 5;
+    console.log(num1);   // 5
+    
+    console.log(num2);   // can't access 'num2' before initialization
+    let num2 = 5;
+    console.log(num2);   // 5
+}}}
+* Variables declared with var gets hoisted.
+* Declaration using let and const are also not hoisted.
+
+= Closure =
+* In simpler terms, it is a function within a function, where the outer function’s local variables remain available in memory after creation and popped off from call stack.
+* Therefore the inner function has access to the state of outer function when it was created.
+
+{{{
+    function outer(){
+        let count = 0;
+        
+        function inner(){
+            count++;
+            return `${count}`
+        }
+        
+        return inner
+    }
+    
+    const fun = outer(); // const fun = inner(){ count++; return `${count}`}
+    
+    console.log(fun())   // 1
+    console.log(fun())   // 2
+    console.log(fun())   // 3
+    console.log(fun())   // 4
+}}}

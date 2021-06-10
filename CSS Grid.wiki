@@ -1,0 +1,68 @@
+= gap =
+* It defines spacing between children elements both horizontally and vertically.
+* `gap: 1rem`
+
+= Grid Column =
+*grid-template-columns*
+* It helps in alliging columns.
+* `grid-template-columns: 1fr 1fr 1fr` → It specified to divide the available space into 3 columns and give each element 1 fraction or 33% of the area.
+* A more concise way to write it → `grid-template-columns: repeat(3, 1fr)`
+* For much better sizing
+    - `grid-template-columns: repeat(3, minmax(240px, 1fr))`
+*   - It speicifes minimum width as 240px, but maximum width as 1fr allows
+    - But the problem is it creates horizontal overflow.
+* To make it truely responsive without hardcoding exact number of repear (here, 3), use auto-fit.
+    - `grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))`
+* Note there is also an auto-fill options. But it creates extra columns when space available.
+* `grid-template-columns: 240px auto auto 240px;` → 4 columns with fixed width of outer columns.
+
+= Grid Rows =
+*grid-template-rows*
+* Same as `grid-template-column` but for rows.
+* `grid-template-rows: repeat(4, 1fr);`
+
+*All rows*
+* `grid-auto-rows` makes all of the rows of same height →  `grid-auto-rows: 240px`
+
+= Manipulate individual grid item =
+*Change grid item height*
+* `grid-row` allows to manipulate individual grid height.
+* `grid-row: 1 / 4` → Speicifies the image to start from horizontal line 1 to horizontal line 4, i.e., span across 3 rows.
+* A more flexible way to do it,
+    - `grid-row: span 2 / auto`
+    - It Tells the row item to span across 2 rows from its starting position and the browser to find the ending row automatically.
+
+*Change grid item width*
+* `grid-column` property allowes to manipulate individual grid width.
+* Syntax same as `grid-row`
+* `grid-column: span 2 / auto`
+
+*At very small size*
+* At smaller size spanning across grid lines looks very skinny.
+* Hence wrap the individual grid manipulation under a media query for a min-width →   `@media screen and (min-width: 600px) { ... }` 
+
+= Explicit grid =
+*grid-template-areas*
+* It allows to create explicit grid by giving names to the different areas in the grid.
+    {{{
+        grid-template-areas:
+            'a  b   c   d'
+            'l  ✗   ✗   e'
+            'k  ✗   ✗   f'
+            'j  i   h   g'
+    }}}
+* Then we can bind any element to individual explicit grid name, no matter where it is in the container.
+    {{{
+        .card1 {
+            grid-area: a;
+        }
+        
+        .card2 {
+            grid-area: b;
+        }
+        
+        /* replace all the ✗ area with one element */
+        .card_main {
+            grid-area: ✗;
+        }
+    }}}

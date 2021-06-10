@@ -1,0 +1,26 @@
+= Select and Append Item =
+* `d3.selectl("ul").append("li").text("List Item")`
+* `d3.selectAll("li").text("List Items")`
+
+= Attach data to DOM element, Inline CSS,  =
+{{{
+    <body>
+        <ul></ul>
+        <script>
+        const dataset = ["a", "b", "c"];
+        d3.select("ul").selectAll("li")
+          .data(dataset)                        // Reviews the dataset and runs the following code 3 times, one for each item of the array
+          .enter().append("li")                 // enter() method sees if there is enough li element else creates new nodes for incoming data
+          .text((item) => item);                // text() takes callback where the argument reference each item of the dataset
+          .style("font-family", "verdana")      // inline CSS
+        </script>
+    </body>
+
+}}}
+
+= Change style based on data =
+* `selection.style("color", (d) => d<20 ? 'red' : 'green')`
+
+= Set attribute =
+* `selection.attr("class", "container")`
+* Now we can write normal css referencing this class attribute.

@@ -1,0 +1,16 @@
+* Responsive image → class `img-responsive`
+* Centre text → class `text-center`
+* Button → class `btn btn-default`
+* Button fill all width → class `btn btn-default btn-block`
+* Make button color as primary color of app → replace `btn-default` to `btn-primary`
+* Pre defined button colors
+    - Optional actions → `btn-info`
+    - Destructive action → `btn-danger`
+* Button colors applies to texts as well
+    - `text-primary`, `text-danger` etc.
+* Bootstrap Grid: It uses 12-coloumn grid
+    - First put grid elements in a div of class `row` and then use column class in each grid element.
+    - It has three parts → `col`-`screenwidth`-`how many column`
+    - For medium screen → class `col-md-<num>`
+    - For extra small screen → class `col-xs-<num>`
+    - 
