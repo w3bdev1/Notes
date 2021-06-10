@@ -65,5 +65,13 @@
 * To ignore for a specific user: Mention the file in `$GIT_DIR/info/exclude`
 * In case the file was already tracked by git, but now you want to ignore → `git update-index --assume-unchanged <file>`
 
+= Update or Sync forked repo with upstream =
+* Add the upstream repo as another remote → `git remote add upstream <upstream-url>`
+* Then fetch from upstream → `git fetch upstream`
+* Rewrite your master with upstream/master → `git rebase master`
+
+= Change Remote url =
+* `git remote set-url <origin> <url>`
+
 --- 
 Source: http://www-cs-students.stanford.edu/~blynn/gitmagic/ch02.html
