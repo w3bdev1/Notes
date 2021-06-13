@@ -1,0 +1,23 @@
+* Run jQuery code after document load → `<script>$(document).ready(<code>)</script>`
+* Select element by tag → `$("button")`
+* Select element by class 'myClass' → `$(".myClass")`
+* Select element by id 'myid' → `$("#myid")`
+* Add class → `$(target).addClass("<className>")`
+* Remove class → `$(target).removeClass("<className>")`
+* Adding CSS → `$(target).css("<property>","<value>")`
+* Change property of an element → `$(target).prop("<key>", <value>)`
+    - Disbale a button → `$("button").prop("disabled", true)`
+* Add html tag and text within an element → `$(target).html("<tag>text</tag>")`
+* Alter text of an element → `$(target).text("Text")`
+* Remove an element from the document → `$(target).remove()`
+* Move an element from parent1 to parent2 → `$(target).appendTo(<target of parent2>)`
+    - It removes it from parent1
+* Copy (clone) an element from parent1 to parent2 → `$(target).clone().appendTo(<target of parent2>)` ← Function chaining
+* Access parent of an element → `$(target).parent()`
+    - Change background color of parent of a button → `$("button").parent().css("background-color", "red")`
+* Access children of an element → `$(target).children()`
+* Select n-th child → `$(target:nth-child(n))`
+    - Add class 'myClass' to 3rd button having btn class → `$(".btn:nth-child(3)").addClass("myClass")`
+    - Note this works for 3rd button having btn class under every parent.
+* Odd and even positioned selector → `$(target:odd)`, `$(target:even)`
+    - Note the positions are zero-indexed. So :odd selects position second(1), fourth(3), sixth(5) etc

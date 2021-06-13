@@ -9,6 +9,7 @@
 * [[JS Function]]
 * [[JS Object]]
 * [[d3]]
+* [[jQuery]]
 
 = Git =
 * [[Git Fundamentals]]
