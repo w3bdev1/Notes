@@ -1,0 +1,141 @@
+= Variable =
+* In Sass, variables start with a `$` followed by the variable name. 
+{{{
+    $main-fonts: Arial, sans-serif;
+
+    h1 {
+        font-family: $main-fonts;
+    }
+}}}
+
+= Nesting =
+* Sass allows placing child style rules within the respective parent elements.
+{{{
+    ul {
+        list-style: none;
+
+        li {
+            display: inline-block;
+        }
+    }
+}}}
+
+= Mixins = 
+* A mixin is a group of CSS declarations that can be reused throughout the style sheet.
+* The definition starts with `@mixin` followed by a custom name.
+* Mixins can take parameters, although optional.
+{{{
+    @mixin box-shadow($x, $y, $blur, $c){ 
+        -webkit-box-shadow: $x $y $blur $c;
+        -moz-box-shadow: $x $y $blur $c;
+        -ms-box-shadow: $x $y $blur $c;
+        box-shadow: $x $y $blur $c;
+    }
+}}}
+* A mixin is called with the `@include` directive:
+{{{
+    div {
+        @include box-shadow(0px, 0px, 4px, #fff);
+    }
+}}}
+
+= if-else Statement =
+{{{
+    @mixin text-color($val) {
+        @if $val == danger {
+            color: red;
+        }
+        @else if $val == alert {
+            color: yellow;
+        }
+        @else if $val == success {
+            color: green;
+        }
+        @else {
+            color: black;
+        }
+    }
+}}}
+
+= for Loop =
+* `@for` is used in two ways: `start through end` or `start to end`.
+* `start to end` →  excludes the end number as part of the count.
+* `start through end` → includes the end number as part of the count.
+
+*Create twelve options for column widths available as CSS classes*
+{{{
+    @for $i from 1 through 12 {
+        .col-#{$i} {
+            width: 100%/12 * $i ;
+        }
+    }
+}}}
+* `#{$i}` converts `i` to a string.
+* When the previous Sass code is converted to CSS, it looks like,
+{{{
+    .col-1 {
+        width: 8.33333%;
+    }
+
+    .col-2 {
+        width: 16.66667%;
+    }
+
+    ...
+
+    .col-12 {
+        width: 100%;
+    }
+}}}
+
+= each Loop =
+* `@each` directive which loops over each item in a list or map.
+
+*each loop over a list*
+{{{
+    @each $color in blue, red, green {
+        .#{$color}-text {color: $color;}
+    }
+}}}
+
+*each loop over a map*
+{{{
+    $colors: (color1: blue, color2: red, color3: green);
+
+    @each $key, $color in $colors {
+        .#{$color}-text {color: $color;}
+    }
+}}}
+* Note that the $key variable is needed to reference the keys in the map. Otherwise, the compiled CSS would have color1, color2... in it.
+
+= while Loop =
+* It creates CSS rules until a condition is met.
+
+*Create twelve options for column widths available as CSS classes*
+{{{
+    $x: 1;
+    @while $x < 13 {
+        .col-#{$x} { width: 100%/12 * $x;}
+        $x: $x + 1;
+    }
+}}}
+
+= Partials =
+* Partials in Sass are separate files that hold segments of CSS code.
+* Names for partials start with the underscore (_) character.
+* Sass files end with the `.scss` file extension.
+* To bring the code in the partial into another Sass file, use the `@import` directive.
+* So we can import a partial named `_mixins.scss` → `@import 'mixins'`
+
+= extend Directive =
+* `@extend` directive allows to borrow the CSS rules from one element to another.
+{{{
+    .text {
+        font-size: 2em;
+    }
+    
+    .red-text {
+        @extend .text;
+        color: red;
+    }
+}}}
