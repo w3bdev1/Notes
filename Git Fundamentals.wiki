@@ -68,7 +68,7 @@
 = Update or Sync forked repo with upstream =
 * Add the upstream repo as another remote → `git remote add upstream <upstream-url>`
 * Then fetch from upstream → `git fetch upstream`
-* Rewrite your master with upstream/master → `git rebase master`
+* Rewrite your master with upstream/master → `git rebase upstream/master`
 
 = Change Remote url =
 * `git remote set-url <origin> <url>`
