@@ -1,3 +1,72 @@
+= Basic Terms =
+* Repository → collection of commits
+* Index → Staging area
+* Working tree → Filesystem associated with a repo
+* Commit — snapshot of working tree at some point in time
+* Branch → A commit set as parentage
+* Tag → A commit that names a specific commit
+* HEAD → What is currently checked out.
+    - If a branch is checked out, it refers to the branch
+    - If a commit is checked out, it refers to the commit
+    - Check → `git cat-file -t HEAD`
+    - Decode the HEAD alias into the commit it references → `git rev-parse HEAD`
+
+= Blob =
+* It reperesents file contents.
+* It is uniquely identified by SHA1 hash id.
+* Same contents shall always be represented by the same blob, no matter where it appears: across commits, across repositories — even across the whole Internet.
+* Blob stores no metadata about the content.
+
+_In Practice_
+* Check hash id for a file → `git hash-object <filename>`
+* Check whether a hash id corresponds to a blob or not → `git cat-file -t <unique initial digits of blob-hash-id>`
+* Cat file from its hash id → `git cat-file blob <unique initial digits of blob-hash-id>`
+
+_Note_
+* `hash-object` can be checked even without initializing a git repo, as it says which hash id Git is *going to store* for that file.
+* [✗] But in case of `cat-file` the blob needs to be committed.
+
+_hash-object vs sha1sum_
+* `git hash-object` and `sha1sum` do not give same value as git prepends the string "blob " followed by the file size and a NUL to the file's contents before hashing.
+* Check
+    - `printf hello > greeting`
+    - `git hash-object greeting`
+    - `printf "blob 5\0$(cat greeting)" | sha1sum`
+
+= Trees =
+* Blobs are featureless. They have no name, no structure.
+* Git attaches blobs as leaf nodes within a tree.
+* Every commit holds a single tree.
+* A tree contains blobs (file) or other trees(directory).
+* List tree contents → `git ls-tree <tree-id>`
+    - `git ls-tree HEAD`
+    - `git ls-tree master`
+* Check underlying hash id of the tree held by a commit → `git cat-file commit HEAD`
+* The object can be listed → `find .git/objects -type f`
+    - It results like this `.git/objects/05/63f7....`
+    - So we can check the hash type using `git cat-file -t 0563`
+
+= Journey from from a File to a Part of a Branch =
+* When a file is is added to index (staged, `git add <filename>`), a blob is created.
+    - List staged blobs → `git ls-files --stage`
+    - We can check the type → `git cat-file -t <id>`
+    - At this moment the blob is referenced in `.git/index`
+    - It is not part of any tree yet.
+* Create a tree → `git write-tree`
+    - The tree id can be confirmed by grepping from `find .git/objects/ -type f`
+    - This takes all the content from index (staging) and put them in the new tree.
+    - So the blob created is now part of this tree.
+* Create a commit object by using this tree → `echo "<Commit message>" | git commit-tree <tree-id>`
+    - It takes a tree’s hash id and makes a commit object to hold it.
+    - To have a parent, the parent commit’s hash id has be specified explicitly using the -p option.
+* Add commit as head of a branch (say master) → `echo <Full-Commit-Id> > .git/refs/heads/master` 
+    - Since we are saving the commit id in the branch head, full id needs to be specified.
+    - This command tells Git that the branch name “master” should now refer to our recent commit.
+    - Much safer way → `git update-ref refs/heads/master <inital digits of commit id>` (Does not work ???)
+    - If `refs/heads/master` is not set to point to the new commit, it would have been considered “unreachable”, since nothing currently refers to it nor is it the parent of a reachable commit. When this is the case, the commit object will at some point be removed from the repository, along with its tree and all its blobs. (This happens automatically by a command called gc, which you rarely need to use manually). 
+    - By linking the commit to a name within refs/heads, as we did above, it becomes a reachable commit, which ensures that it’s kept around from now on.
+* Associate our working tree with master branch (like checking out) → `git symbolic-ref HEAD refs/heads/master`
+
 = Add, Delete, Rename =
 * `git add <filename>`
 * `git rm <filename>`
@@ -41,7 +110,6 @@
 * `git revert <Deletion commit hash>`
 * Note, all other changes happened during the deletion commit will also be reverted.
 
-
 = What has been changed =
 *Change since last commit*
 * Change `git diff`
@@ -74,4 +142,6 @@
 * `git remote set-url <origin> <url>`
 
 --- 
-Source: http://www-cs-students.stanford.edu/~blynn/gitmagic/ch02.html
+*Sources*
+1. http://www-cs-students.stanford.edu/~blynn/gitmagic/ch02.html
+2. https://jwiegley.github.io/git-from-the-bottom-up/
