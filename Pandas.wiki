@@ -1,0 +1,30 @@
+* `import pandas as pd`
+* Read csv and save as dataframe (rows and columns) → `df = pd.read_csv('<path to csv>')`
+* Set max columns to show → `pd.set_option('display.max_columns', 10)`
+* Show first 10 lines from the dataframe → `df.head(10)`
+* Show last 10 lines from the dataframe → `df.tail(10)`
+
+= DataFrames =
+* It represents a 2D data having rows and columns.
+* It is actually based on a dictionary. Columns are the keys. Values under a column is a list value of that particular key.
+* But the dataframe has more functionality than a regular python dictionary.
+
+*Create a DataFrame*
+* Creating such dictionary
+{{{
+    people = {
+        "first": ["John", "Jane"],
+        "last": ["Green", "Doe"]
+    }
+}}}
+* Now we can create a dataframe based on this dictionary → `df = pd.DataFrame(people)`
+* Now `df` looks like this
+{{{
+     	first 	last
+    0 	John 	Green
+    1 	Jane 	Doe
+}}}
+
+*Access values from a column*
+* 8:30
+* https://yewtu.be/watch?v=zmdjNSmRXF4
