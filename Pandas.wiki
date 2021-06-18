@@ -6,25 +6,67 @@
 
 = DataFrames =
 * It represents a 2D data having rows and columns.
-* It is actually based on a dictionary. Columns are the keys. Values under a column is a list value of that particular key.
+* It can be thought as a dictionary. Columns are the keys. Values under a column is a list value of that particular key.
 * But the dataframe has more functionality than a regular python dictionary.
 
 *Create a DataFrame*
 * Creating such dictionary
 {{{
     people = {
-        "first": ["John", "Jane"],
-        "last": ["Green", "Doe"]
+        "first": ["John", "Jane", "Veem"],
+        "last": ["Green", "Doe", "Void"],
+        "email": ["jgreen@a.com", "jdoe@b.com", "veem@void.com"]
     }
 }}}
 * Now we can create a dataframe based on this dictionary → `df = pd.DataFrame(people)`
 * Now `df` looks like this
 {{{
-     	first 	last
-    0 	John 	Green
-    1 	Jane 	Doe
+        first 	last 	email
+    0 	John 	Green 	jgreen@a.com
+    1 	Jane 	Doe 	jdoe@b.com
+    2 	Veem 	Void 	veem@void.com
 }}}
 
+= Access Columns =
 *Access values from a column*
+* Bracket notation → `df['first']`
+* Dot notation → `df.first`
+    - It can conflict if column name is same as a df method, e.g., df.count
+* It may seem that we are fetching a key from a dictionary.
+* But it is actually not a list. Its a series → `type(df['first])` → pandas.core.series.Series
+* So we can think `Series` as a 1D array.
+* When accessing values from a column, the indexes of the series are integers.
+
+*Access values from multiple columns*
+* Using bracket notation we can pass the list of columns we need → `df[['first', 'email']]`
+* Since it is returning multiple columns (2D) it cannot be a Series. It is another DataFrame, precisely filtered down DataFrame.
+
+*Access all column names*
+* df.columns
+
+= Access Rows by iloc=
+*Access a row by integer locations (iloc)*
+* To access the first row → `df.iloc[0]`
+* Since it a 1D row, it is a `Series`.
+* When accessing values from a row, the indexes of the series are column names.
+
+*Access multiple rows by iloc*
+* Pass a list of integers to iloc → `df.iloc[[0,1]]`
+* Returns a DataFrame.
+
+*Access specific columns from specific rows*
+* Pass 2 lists to iloc. First list specifies rows and second list specifies columns.
+* From John (row 0) and Veem (row 2) access first (column 0) and last (column 1) → `df.iloc[[0,2], [0,1]]`
+* Since iloc expects integers, we cannot specify column names as strings.
+
+=Access Rows by loc=
+* Since by default indexes of rows are integers it may seem same as iloc. But we can change those labels.
+* But column names are strings. So there we can see the difference between loc and iloc.
+* From John (row 0) and Veem (row 2) access first and last  → `df.loc[[0,2], ['first','last']]`
+* We can also set ranges using slicing. Note here slicing is inclusive.
+    - Access  `email` column from first 3 rows → `df.loc[0:2, 'email']`
+    - Access `first` to `email` column from first 3 rows → `df.loc[0:2, 'first':'email']`
+
+---
 * 8:30
 * https://yewtu.be/watch?v=zmdjNSmRXF4
