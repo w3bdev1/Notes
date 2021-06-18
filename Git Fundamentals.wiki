@@ -111,12 +111,30 @@ _hash-object vs sha1sum_
 
 = Branching, Merging and Rebase =
 * Each commit references its parent(s), but not its children.
-* Base commits: the commits that branch was born from
 
+*Branching*
+* Base commits: the commits that branch was born from.
+    A   B   C   D
+〇← 〇← 〇← 〇← 〇
+    ↑             
+    〇← 〇← 〇← 〇
+    W   X   Y   Z 
+* Here A is the base commit for the branch Z
+    
 *Merge*
 * To merge from testing to master → `git checkout master; git merge testing`
 * It may require resolving any conflicts between the states.
 * Although the new master now contains the changes from testing, it also includes a new commit to represent the merging of master with testing. This commit doesn’t add anything new, but represents the work done to bring testing and master together. In a sense it’s a “meta-commit”, because its contents are related to work done solely in the repository, and not to new work done in the working tree.
+
+_Visualize_
+* `git checkout Z` → Switch to Z branch
+* `git merge D` → merge commits B, C and D into Z
+
+    A   B   C   D
+〇← 〇← 〇← 〇← 〇←.
+    ↑               \
+    〇← 〇← 〇← 〇← 〇   
+    W   X   Y   Z   Z'(Z+D)
 
 *Rebase*
 * In case of rebase we transplant the master branch straight onto testing, effectively moving it forward in time.
@@ -124,10 +142,127 @@ _hash-object vs sha1sum_
 * Change local master's base commit to upstream/master → `git checkout master; git fetch upstream; git rebase upstream/master`
     - So any change in local master will have clean PR.
 
+_Visualize_
+* `git checkout Z` → switch to the Z branch
+* `git rebase D` → change Z’s base commit to point to D
+
+    A   B   C   D
+〇← 〇← 〇← 〇← 〇←.
+                    \
+                    〇← 〇← 〇← 〇
+                    W'  X'  Y'  Z'
+
 *Conclusion*
 * Since rebase is potentially changing every commit in the branch, use rebase for local use which does not have any of downstream consumers
 * Else use merge.
 * Merge is also useful when you’re ready to pull your local branch’s changes back into the main branch
+
+= Interactive rebasing =
+* In the above example the rebasing automatically rewrote all the commits from W to Z in order to rebase the Z branch onto the D commit (i.e., the head commit of the D branch).
+* Complete control over how this rewriting is done can be achieved by the -i option to rebase.
+
+*Options during interactive rebase*
+* `pick` → Default, same when -i was not given, i.e., commit in question should be applied to its (now rewritten) parent commit
+* `squash` → A squashed commit will have its contents “folded” into the contents of the commit preceding it. Clearly to squash all the commits, the first one has to be pick.
+* `edit` →
+* `(drop)` → Removing a commit from the interactive rebase file, or if you comment it out, the commit will simply disappear as if it had never been checked in. This can cause merge conflicts if any of the later commits in the branch depended on those changes.
+
+*Advantages*
+* Collapse multiple commits into single ones.
+* Re-order commits.
+* Remove incorrect changes.
+* Move the base of current branch onto any other commit in the repository.
+* Modify a single commit, to amend a change long after the fact.
+
+= Index =
+* It refers to the set of newly created trees and blobs which you created by running git add.
+* The index is really just a staging area for next commit.
+* It gives the ability to build up commits in stages.
+* The state of the index becomes tree of the next commit.
+* To ignore the index almost entirely pass the -a flag to commit.
+* To commit only a hunk → `git add --patch <filename>`. It gives many options,
+    - `y` → stage this hunk for the next commit
+    - `n` → do not stage this hunk for the next commit
+    - `q` → quit; do not stage this hunk or any of the remaining hunks
+    - `a` → stage this hunk and all later hunks in the file
+    - `d` → do not stage this hunk or any of the later hunks in the file
+    - `g` → select a hunk to go to
+    - `/` → search for a hunk matching the given regex
+    - `j` → leave this hunk undecided, see next undecided hunk
+    - `J` → leave this hunk undecided, see next hunk
+    - `k` → leave this hunk undecided, see previous undecided hunk
+    - `K` → leave this hunk undecided, see previous hunk
+    - `s` → split the current hunk into smaller hunks
+    - `e` → manually edit the current hunk 
+
+*Try combination of different changes before commit*
+* First commit differently for different combinations using `git add -i` or `git add --patch`
+* Let there was 2 commits.
+* Then from git log check the hash id of those two commits.
+* Now create a temporary branch at the first commit → `git checkout -b temp <hash id of first commit>`
+* Then cherry pick from second commit → `git cherry-pick <hash id of second commit>`
+    - `cherry-pick` allows to apply specific commit ids
+* Now run the tests.
+* Now go back to master branch and delete the temporary branch → `git checkout master; git branch -D temp`
+* Then add the commits that passed the tests to the main commit.
+
+= Reset =
+* Basically, reset is a reference editor, an index editor, and a working tree editor.
+
+*Mixed Reset*
+* The `--mixed` option, which is default, hence no option.
+* It reverst `HEAD` and Index to a given commit.
+* With `--soft` option, which is also default, only HEAD reverts, index is not touched.
+* So `git reset <commit-hash>` reverts the HEAD to that commit and the changes after it goes to index.
+
+*Soft Reset*
+* Simply changing your HEAD reference to a different commit. 
+* It can give a chance to create a new commit in place of the old one. 
+    - In fact, if the commit you want to change is the most recent one checked in, you can use `commit --amend` to add your latest changes to the last commit as if you’d done them together.
+* If there is downstream consumers, and they’ve done work on top of your previous head — the one you threw away — changing HEAD like this will force a merge to happen automatically after their next pull.
+* Backup HEAD to its parent, i.e., effectively ignoring the last commit → `git reset --soft HEAD^`
+    - Same can be achieved by `git update-ref HEAD HEAD^`
+
+*Hard Reset*
+* It changes branch as well as the working tree. Destructive.
+* Hard reset against your current HEAD, it will erase all changes in your working tree.
+* Hard reset against an earlier commit, it’s the same as first doing a soft reset and then using reset --hard to reset your working tree.
+    - `git reset --hard HEAD~3` and `git reset --soft HEAD~3; git reset --hard` are same.
+
+_Always stash before hard reset_
+* First stash → `git stash`
+* Then go back hard → `git reset --hard HEAD~3`
+* Now if it was a mistake, restore the previous state by reset --hard with the reflog → `git reset --hard HEAD@{1}` ← restore from reflog before the change.
+* Bring back the working tree changes → `git stash apply`
+
+_A safer way than hard reset_
+* Stash the changes → `git stash` ← stash is not branch specific
+* Create a new branch from the older / target commit → `git checkout -b new-branch HEAD~3`
+* Then do the changes in the new branch.
+* If you want the new-branch to be the new master
+    - Delete the master branch → `git branch -D master` ← still in reflog
+    - Make new branch the master → `git branch -m new-branch master`
+
+= Reflog and Stashing =
+* These are other ways a blob can dwell in your repository.
+
+*Reflog*
+* A kind of meta-repository that records every change you make to your repository
+* It records in the form of commits. 
+* This means that when you create a tree from your index and store it under a commit (all of which is done by commit), you are also inadvertently adding that commit to the reflog.
+* It can be viewed using → `git reflog`
+* Reflogs persists independently of other changes in your repository for 30 days.
+
+*Stash*
+* `git stash` takes all your directory’s contents, including both working tree, and the state of the index, and creates blobs for them in the git repository, a tree to hold those blobs, and a pair of stash commits to hold the working tree and index and record the time when you did the stash.
+* We can pull changes back out of the stash with `git stash apply`
+* As stashed working tree is stored under a commit, we can work with it like any other branch.
+    - `git log stash{2}`
+    - `git show stash{2}`
+    - `git checkout -b temp stash{2}`
+* Clean up stash list
+    - Use → `git reflog expire --expire=30.days refs/stash`
+    - Don't use → `git stash clear`
 
 ---
 
