@@ -66,6 +66,70 @@ _hash-object vs sha1sum_
     - If `refs/heads/master` is not set to point to the new commit, it would have been considered “unreachable”, since nothing currently refers to it nor is it the parent of a reachable commit. When this is the case, the commit object will at some point be removed from the repository, along with its tree and all its blobs. (This happens automatically by a command called gc, which you rarely need to use manually). 
     - By linking the commit to a name within refs/heads, as we did above, it becomes a reachable commit, which ensures that it’s kept around from now on.
 * Associate our working tree with master branch (like checking out) → `git symbolic-ref HEAD refs/heads/master`
+* File → Blob → Tree → Commit
+
+= Types of Commits =
+*Branch is a commit*
+* Since a commit can have one or more parents, and those commits can have parents, this is what allows a single commit to be treated like a branch. 
+* Branch or all top level, referenced commits can be examined using the branch command → `git branch -v`
+    - It returns the commit hash.
+
+*Tag*
+- A tag-name alias is identical to a branch alias in terms of naming a commit. 
+- The major difference between the two is that tag aliases never change, whereas branch aliases change each time a new commit is checked in to that branch.
+- Besides tags can have their own descriptions, just like the commits they reference.
+
+*Merge commit*
+* If a commit has multiple parents, it’s a “merge commit” — since it merged multiple commits into one
+
+*Others*
+* SHA1 hash
+* name^ → parent of any commit
+* name^^ → parent of the parent of given commit
+* name^n → If a commit has multiple parent (e.g., merge commit), it refers to n-th commit
+* name~n → n-th generation ancestor of a commit. name~5 is same as name^^^^^
+* name:path → Reference a certain file within a commit’s content tree → `git diff HEAD^1:Readme.md HEAD^2:Readme.md`
+* name^{tree} → Reference just the tree held by a commit, rather than the commit itself.
+* name1..name2 → Commit ranges → `git diff <older commit hash>..HEAD`
+    - If either name1 or name2 is omitted, HEAD is used in its place.
+    - Review changes in testing other branch → `git diff master..HEAD` or `git diff master..`
+    - Review changes after fetch since last rebase or merge → `git diff HEAD..master` or `git diff ..master`
+* name1...name1 → It refers to all the commits referenced by name1 or name2, but not by both, i.e., all the unique commits in both branches.
+* --since="2 weeks ago" → Refers to all commits since a certain date.
+* --until="1 week ago" → Refers to all commits before a certain date.
+* --grep=pattern → Refers to all commits whose commit message matches the regular expression pattern.
+* --committer=pattern → Refers to all commits whose committer matches the pattern.
+* --author=pattern → Refers to all commits whose author matches the pattern.
+* --no-merges → Refers to all commits in the range that have only one parent — that is, it ignores all merge commits.
+* Log changes made to the current branch (branched from master), by author johndoe, within the last month, which contain the text 'foo'
+    - `git log --author='johndoe' --since='1 month' --grep='foo' master..`
+
+*Conclusion*
+* All these are mere nomenclatures.
+* Git has only blobs, trees and commits.
+* The world is simply a collection of commit objects, each of which holds a tree that references other trees and blobs, which store your data.
+
+= Branching, Merging and Rebase =
+* Each commit references its parent(s), but not its children.
+* Base commits: the commits that branch was born from
+
+*Merge*
+* To merge from testing to master → `git checkout master; git merge testing`
+* It may require resolving any conflicts between the states.
+* Although the new master now contains the changes from testing, it also includes a new commit to represent the merging of master with testing. This commit doesn’t add anything new, but represents the work done to bring testing and master together. In a sense it’s a “meta-commit”, because its contents are related to work done solely in the repository, and not to new work done in the working tree.
+
+*Rebase*
+* In case of rebase we transplant the master branch straight onto testing, effectively moving it forward in time.
+* That’s why the command is called “rebase”, because it changes the base commit of the branch it’s run from.
+* Change local master's base commit to upstream/master → `git checkout master; git fetch upstream; git rebase upstream/master`
+    - So any change in local master will have clean PR.
+
+*Conclusion*
+* Since rebase is potentially changing every commit in the branch, use rebase for local use which does not have any of downstream consumers
+* Else use merge.
+* Merge is also useful when you’re ready to pull your local branch’s changes back into the main branch
+
+---
 
 = Add, Delete, Rename =
 * `git add <filename>`
@@ -82,6 +146,7 @@ _hash-object vs sha1sum_
 
 *Restore to a earlier commit permanently*
 * `git reset --hard <commit hash>`
+* It resets the head of the working tree to a particular commit and erase all changes currently in my working tree, whether they’ve been registered for a checkin or not.
 
 *Restore to a earlier commit temporarily*
 * Restore the whole repo → `git checkout <commit hash>`
@@ -89,7 +154,7 @@ _hash-object vs sha1sum_
 * Other ways to checkout to previous commit
     - Via number → `git checkout master~5` → 5th last saved commit
     - Via starting of commit message → `git checkout :/"My First Com"`
-* It is a detached HEAD state. Here we can do experimental changes.
+* It is a detached HEAD state, i.e., do not point to any branch and so it only changes the working tree. Here we can do experimental changes.
 * Now we have 2 options
     - Save the experimental changes to a new branch → `git switch c <new branch name>`
     - Switch back to actual position removing experimental changes → `git switch -` or `git checkout <existing branch name>`
